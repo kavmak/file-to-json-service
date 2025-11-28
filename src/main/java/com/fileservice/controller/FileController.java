@@ -19,26 +19,19 @@ public class FileController {
     private FileProcessingService fileProcessingService;
     
     @PostMapping("/upload")
-    public ResponseEntity<FileUploadResponse> uploadFile(@RequestParam("file") MultipartFile file) {
+    public ResponseEntity<JsonDataResponse> uploadFile(@RequestParam("file") MultipartFile file) {
         try {
             if (file.isEmpty()) {
                 return ResponseEntity.badRequest()
-                    .body(new FileUploadResponse(false, "File is empty", null, 0));
+                    .body(new JsonDataResponse(false, "File is empty"));
             }
             
-            String fileId = fileProcessingService.processFile(file);
-            FileProcessingService.FileData fileData = fileProcessingService.getFileData(fileId);
-            
-            return ResponseEntity.ok(new FileUploadResponse(
-                true, 
-                "File processed successfully", 
-                fileId, 
-                fileData.getRecordCount()
-            ));
+            JsonDataResponse response = fileProcessingService.processFileToJson(file);
+            return ResponseEntity.ok(response);
             
         } catch (Exception e) {
             return ResponseEntity.badRequest()
-                .body(new FileUploadResponse(false, "Error processing file: " + e.getMessage(), null, 0));
+                .body(new JsonDataResponse(false, "Error processing file: " + e.getMessage()));
         }
     }
     

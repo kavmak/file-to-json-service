@@ -1,5 +1,6 @@
 package com.fileservice.service;
 
+import com.fileservice.dto.JsonDataResponse;
 import com.fileservice.parser.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.stereotype.Service;
@@ -34,6 +35,24 @@ public class FileProcessingService {
         fileStorage.put(fileId, fileData);
         
         return fileId;
+    }
+    
+    public JsonDataResponse processFileToJson(MultipartFile file) throws Exception {
+        String fileName = file.getOriginalFilename();
+        String fileType = getFileExtension(fileName);
+        
+        byte[] fileBytes = file.getBytes();
+        List<Map<String, String>> jsonData = parseFile(fileBytes, fileType);
+        
+        JsonDataResponse response = new JsonDataResponse();
+        response.setSuccess(true);
+        response.setMessage("File processed successfully");
+        response.setFileName(fileName);
+        response.setFileType(fileType);
+        response.setRecordCount(jsonData.size());
+        response.setData(jsonData);
+        
+        return response;
     }
     
     public FileData getFileData(String fileId) {
